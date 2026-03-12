@@ -24,9 +24,33 @@ struct PlayerView: View {
                     Color.black
                         .ignoresSafeArea()
 
-                    if viewModel.currentItem != nil {
-                        MacVideoPlayerView(player: viewModel.player)
-                            .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                    if let item = viewModel.currentItem {
+                        switch item.mediaType {
+                        case .video:
+                            MacVideoPlayerView(player: viewModel.player)
+                                .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                        case .audio:
+                            if let artwork = viewModel.artworkImage {
+                                Image(nsImage: artwork)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .shadow(radius: 16)
+                                    .padding(40)
+                            } else {
+                                VStack(spacing: 16) {
+                                    Image(systemName: "music.note.list")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 120, height: 120)
+                                        .foregroundColor(.white.opacity(0.8))
+                                    Text(item.title)
+                                        .font(.headline)
+                                        .foregroundColor(.white.opacity(0.9))
+                                        .lineLimit(1)
+                                }
+                                .padding()
+                            }
+                        }
                     } else {
                         Text("Drop a media file here (mp4, mov, mp3, m4a)")
                             .foregroundColor(.white.opacity(0.7))
@@ -121,7 +145,7 @@ struct PlayerView: View {
         .onAppear {
             DispatchQueue.main.async {
                 if let window = NSApp.keyWindow {
-                    WindowManager.shared.register(window: window)
+                    WindowManager.shared.register(window: window, viewModel: viewModel)
                 }
             }
         }

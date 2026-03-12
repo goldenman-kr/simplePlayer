@@ -24,6 +24,7 @@ final class PlayerViewModel: ObservableObject {
 
     @Published var videoSize: CGSize = .zero
     @Published var isRepeatOneEnabled: Bool = false
+    @Published var artworkImage: NSImage?
 
     private let engine: PlayerEngine
     private var endObserver: Any?
@@ -110,6 +111,41 @@ final class PlayerViewModel: ObservableObject {
         currentTime = 0
         duration = engine.duration
         isPlaying = false
+
+        artworkImage = nil
+        if currentItem?.mediaType == .audio {
+            print("PlayerViewModel: Detected audio file, attempting to extract artwork")
+            extractArtwork(from: url)
+        } else {
+            print("PlayerViewModel: Video file, no artwork extraction")
+        }
+    }
+
+    private func extractArtwork(from url: URL) {
+        let asset = AVAsset(url: url)
+        let metadata = asset.commonMetadata
+
+        if let artworkItem = metadata.first(where: { $0.commonKey == .commonKeyArtwork }) {
+            if let dataValue = artworkItem.dataValue,
+               let image = NSImage(data: dataValue) {
+                print("PlayerViewModel: Extracted embedded artwork via dataValue")
+                DispatchQueue.main.async {
+                    self.artworkImage = image
+                }
+                return
+            }
+
+            if let value = artworkItem.value as? Data,
+               let image = NSImage(data: value) {
+                print("PlayerViewModel: Extracted embedded artwork via value Data")
+                DispatchQueue.main.async {
+                    self.artworkImage = image
+                }
+                return
+            }
+        }
+
+        print("PlayerViewModel: No artwork found in metadata")
     }
 
     func loadFromDrop(url: URL) {

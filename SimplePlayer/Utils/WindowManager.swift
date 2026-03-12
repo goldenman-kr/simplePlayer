@@ -1,13 +1,23 @@
 import AppKit
 
+final class MainWindowDelegate: NSObject, NSWindowDelegate {
+    weak var playerViewModel: PlayerViewModel?
+
+    func windowWillClose(_ notification: Notification) {
+        print("MainWindowDelegate: Main window will close, stopping playback")
+        playerViewModel?.pause()
+    }
+}
+
 final class WindowManager {
     static let shared = WindowManager()
 
     private init() {}
 
     weak var mainWindow: NSWindow?
+    private var mainWindowDelegate = MainWindowDelegate()
 
-    func register(window: NSWindow) {
+    func register(window: NSWindow, viewModel: PlayerViewModel) {
         if let existing = mainWindow {
             if existing === window {
                 print("WindowManager: Main window already registered")
@@ -20,6 +30,8 @@ final class WindowManager {
         } else {
             print("WindowManager: Registering main window")
             mainWindow = window
+            mainWindowDelegate.playerViewModel = viewModel
+            window.delegate = mainWindowDelegate
         }
     }
 
