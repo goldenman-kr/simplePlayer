@@ -118,6 +118,13 @@ struct PlayerView: View {
             }
             .allowsHitTesting(false)
         }
+        .onAppear {
+            DispatchQueue.main.async {
+                if let window = NSApp.keyWindow {
+                    WindowManager.shared.register(window: window)
+                }
+            }
+        }
         .onChange(of: openFileCoordinator.lastRequest) { request in
             guard let request else { return }
             print("PlayerView: received file URL from coordinator: \(request.url.path) (id: \(request.id))")

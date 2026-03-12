@@ -13,6 +13,7 @@ final class SimplePlayerAppDelegate: NSObject, NSApplicationDelegate {
         let url = URL(fileURLWithPath: filename)
         print("SimplePlayerAppDelegate: openFile \(url.path)")
         AppOpenFileCoordinator.shared.handleIncoming(url: url)
+        WindowManager.shared.bringMainWindowToFront()
         return true
     }
 
@@ -20,6 +21,7 @@ final class SimplePlayerAppDelegate: NSObject, NSApplicationDelegate {
         guard let url = urls.first else { return }
         print("SimplePlayerAppDelegate: open URLs, using \(url.path)")
         AppOpenFileCoordinator.shared.handleIncoming(url: url)
+        WindowManager.shared.bringMainWindowToFront()
     }
 }
 
