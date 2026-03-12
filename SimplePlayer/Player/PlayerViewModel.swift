@@ -92,6 +92,13 @@ final class PlayerViewModel: ObservableObject {
         engine.player
     }
 
+    func openFile(url: URL) {
+        print("PlayerViewModel: openFile \(url.path)")
+        load(url: url)
+        play()
+        print("PlayerViewModel: started playback")
+    }
+
     func load(url: URL) {
         let supportedExtensions = ["mp4", "mov", "mp3", "m4a"]
         guard supportedExtensions.contains(url.pathExtension.lowercased()) else {
@@ -106,8 +113,7 @@ final class PlayerViewModel: ObservableObject {
     }
 
     func loadFromDrop(url: URL) {
-        load(url: url)
-        play()
+        openFile(url: url)
     }
 
     func togglePlayPause() {

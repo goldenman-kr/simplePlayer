@@ -4,7 +4,8 @@ import UniformTypeIdentifiers
 import AppKit
 
 struct PlayerView: View {
-    @StateObject private var viewModel = PlayerViewModel()
+    @ObservedObject var viewModel: PlayerViewModel
+    @ObservedObject var openFileCoordinator: AppOpenFileCoordinator
     @State private var isTargeted: Bool = false
     @State private var isFullscreen: Bool = false
     @State private var showControls: Bool = true
@@ -116,6 +117,11 @@ struct PlayerView: View {
                 }
             }
             .allowsHitTesting(false)
+        }
+        .onChange(of: openFileCoordinator.lastRequest) { request in
+            guard let request else { return }
+            print("PlayerView: received file URL from coordinator: \(request.url.path) (id: \(request.id))")
+            viewModel.openFile(url: request.url)
         }
         .onChange(of: isFullscreen) { newValue in
             hideControlsWorkItem?.cancel()
