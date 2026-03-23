@@ -28,7 +28,7 @@ struct PlayerView: View {
                         switch item.mediaType {
                         case .video:
                             MacVideoPlayerView(player: viewModel.player)
-                                .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                         case .audio:
                             if let artwork = viewModel.artworkImage {
                                 Image(nsImage: artwork)
@@ -192,4 +192,3 @@ struct PlayerView: View {
         }
     }
 }
-

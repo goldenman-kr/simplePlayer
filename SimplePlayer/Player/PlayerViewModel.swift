@@ -28,6 +28,7 @@ final class PlayerViewModel: ObservableObject {
 
     private let engine: PlayerEngine
     private var endObserver: Any?
+    private var shouldResizeWindowToVideo = false
 
     init(engine: PlayerEngine = PlayerEngine()) {
         self.engine = engine
@@ -48,6 +49,7 @@ final class PlayerViewModel: ObservableObject {
                     let size = item.presentationSize
                     if size != .zero && size != self.videoSize {
                         self.videoSize = size
+                        self.resizeWindowToVideoIfNeeded()
                     }
                 }
             }
@@ -111,13 +113,16 @@ final class PlayerViewModel: ObservableObject {
         currentTime = 0
         duration = engine.duration
         isPlaying = false
+        videoSize = .zero
 
         artworkImage = nil
         if currentItem?.mediaType == .audio {
             print("PlayerViewModel: Detected audio file, attempting to extract artwork")
+            shouldResizeWindowToVideo = false
             extractArtwork(from: url)
         } else {
             print("PlayerViewModel: Video file, no artwork extraction")
+            shouldResizeWindowToVideo = true
         }
     }
 
@@ -250,10 +255,21 @@ final class PlayerViewModel: ObservableObject {
         window.setFrame(frame, display: true, animate: true)
     }
 
+    private func resizeWindowToVideoIfNeeded() {
+        guard shouldResizeWindowToVideo,
+              hasVideo,
+              let window = NSApp.keyWindow,
+              !window.styleMask.contains(.fullScreen) else {
+            return
+        }
+
+        shouldResizeWindowToVideo = false
+        scaleWindow(to: 1.0)
+    }
+
     deinit {
         if let endObserver {
             NotificationCenter.default.removeObserver(endObserver)
         }
     }
 }
-
