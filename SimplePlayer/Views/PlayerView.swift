@@ -10,6 +10,7 @@ struct PlayerView: View {
     @State private var isFullscreen: Bool = false
     @State private var showControls: Bool = true
     @State private var hideControlsWorkItem: DispatchWorkItem?
+    @State private var isCursorHidden: Bool = false
 
     private let dropTypes: [UTType] = [
         .fileURL,
@@ -158,8 +159,10 @@ struct PlayerView: View {
             hideControlsWorkItem?.cancel()
             if newValue {
                 showControls = false
+                setCursorHidden(true)
             } else {
                 showControls = true
+                setCursorHidden(false)
             }
         }
     }
@@ -167,12 +170,14 @@ struct PlayerView: View {
     private func handleUserInteraction() {
         guard isFullscreen else {
             showControls = true
+            setCursorHidden(false)
             return
         }
 
         withAnimation {
             showControls = true
         }
+        setCursorHidden(false)
 
         hideControlsWorkItem?.cancel()
 
@@ -180,6 +185,7 @@ struct PlayerView: View {
             withAnimation {
                 showControls = false
             }
+            setCursorHidden(true)
         }
 
         hideControlsWorkItem = workItem
@@ -190,5 +196,17 @@ struct PlayerView: View {
         if let window = NSApp.keyWindow {
             window.toggleFullScreen(nil)
         }
+    }
+
+    private func setCursorHidden(_ hidden: Bool) {
+        guard hidden != isCursorHidden else { return }
+
+        if hidden {
+            NSCursor.hide()
+        } else {
+            NSCursor.unhide()
+        }
+
+        isCursorHidden = hidden
     }
 }
