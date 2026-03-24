@@ -1,5 +1,7 @@
 import Foundation
 import Combine
+import AppKit
+import UniformTypeIdentifiers
 
 struct OpenFileRequest: Identifiable, Equatable {
     let id: Int
@@ -11,7 +13,14 @@ final class AppOpenFileCoordinator: ObservableObject {
 
     @Published var lastRequest: OpenFileRequest?
 
-    private let supportedExtensions: Set<String> = ["mp4", "mov", "mp3", "m4a"]
+    let supportedExtensions: Set<String> = ["mp4", "mov", "mp3", "m4a"]
+    let supportedContentTypes: [UTType] = {
+        var types: [UTType] = [.mpeg4Movie, .quickTimeMovie, .mp3]
+        if let m4aType = UTType(filenameExtension: "m4a") {
+            types.append(m4aType)
+        }
+        return types
+    }()
     private var nextID: Int = 1
 
     private init() {}
@@ -31,5 +40,18 @@ final class AppOpenFileCoordinator: ObservableObject {
             self.lastRequest = request
         }
     }
-}
 
+    func presentOpenPanel() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+        panel.allowedContentTypes = supportedContentTypes
+        panel.prompt = "Open"
+        panel.message = "Choose a media file to play."
+
+        if panel.runModal() == .OK, let url = panel.url {
+            handleIncoming(url: url)
+        }
+    }
+}

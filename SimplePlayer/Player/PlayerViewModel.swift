@@ -3,6 +3,7 @@ import AVFoundation
 import SwiftUI
 import Combine
 import AppKit
+import IOKit.pwr_mgt
 
 final class PlayerViewModel: ObservableObject {
     @Published var currentItem: MediaItem?
@@ -29,6 +30,8 @@ final class PlayerViewModel: ObservableObject {
     private let engine: PlayerEngine
     private var endObserver: Any?
     private var shouldResizeWindowToVideo = false
+    private var displaySleepAssertionID: IOPMAssertionID = 0
+    private var systemSleepAssertionID: IOPMAssertionID = 0
 
     init(engine: PlayerEngine = PlayerEngine()) {
         self.engine = engine
@@ -44,6 +47,7 @@ final class PlayerViewModel: ObservableObject {
                     self.duration = newDuration
                 }
                 self.isPlaying = self.engine.isPlaying
+                self.updateSleepPreventionIfNeeded()
 
                 if let item = self.engine.player.currentItem {
                     let size = item.presentationSize
@@ -71,6 +75,7 @@ final class PlayerViewModel: ObservableObject {
                 self.play()
             } else {
                 self.isPlaying = false
+                self.updateSleepPreventionIfNeeded()
             }
         }
     }
@@ -114,6 +119,7 @@ final class PlayerViewModel: ObservableObject {
         duration = engine.duration
         isPlaying = false
         videoSize = .zero
+        releaseSleepAssertions()
 
         artworkImage = nil
         if currentItem?.mediaType == .audio {
@@ -169,11 +175,13 @@ final class PlayerViewModel: ObservableObject {
         engine.play()
         engine.rate = playbackRate
         isPlaying = true
+        updateSleepPreventionIfNeeded()
     }
 
     func pause() {
         engine.pause()
         isPlaying = false
+        updateSleepPreventionIfNeeded()
     }
 
     func seek(to seconds: Double) {
@@ -267,7 +275,46 @@ final class PlayerViewModel: ObservableObject {
         scaleWindow(to: 1.0)
     }
 
+    private func updateSleepPreventionIfNeeded() {
+        guard currentItem?.mediaType == .video, isPlaying else {
+            releaseSleepAssertions()
+            return
+        }
+
+        acquireAssertion(
+            id: &displaySleepAssertionID,
+            type: kIOPMAssertionTypePreventUserIdleDisplaySleep as CFString,
+            name: "SimplePlayer video playback" as CFString
+        )
+        acquireAssertion(
+            id: &systemSleepAssertionID,
+            type: kIOPMAssertionTypePreventUserIdleSystemSleep as CFString,
+            name: "SimplePlayer video playback" as CFString
+        )
+    }
+
+    private func acquireAssertion(id: inout IOPMAssertionID, type: CFString, name: CFString) {
+        guard id == 0 else { return }
+
+        let result = IOPMAssertionCreateWithName(type, IOPMAssertionLevel(kIOPMAssertionLevelOn), name, &id)
+        if result != kIOReturnSuccess {
+            id = 0
+        }
+    }
+
+    private func releaseSleepAssertions() {
+        releaseAssertion(&displaySleepAssertionID)
+        releaseAssertion(&systemSleepAssertionID)
+    }
+
+    private func releaseAssertion(_ id: inout IOPMAssertionID) {
+        guard id != 0 else { return }
+        IOPMAssertionRelease(id)
+        id = 0
+    }
+
     deinit {
+        releaseSleepAssertions()
         if let endObserver {
             NotificationCenter.default.removeObserver(endObserver)
         }

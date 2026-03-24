@@ -35,5 +35,13 @@ struct SimplePlayerApp: App {
         WindowGroup {
             PlayerView(viewModel: playerViewModel, openFileCoordinator: openFileCoordinator)
         }
+        .commands {
+            CommandGroup(after: .newItem) {
+                Button("Open...") {
+                    openFileCoordinator.presentOpenPanel()
+                }
+                .keyboardShortcut("o", modifiers: .command)
+            }
+        }
     }
 }

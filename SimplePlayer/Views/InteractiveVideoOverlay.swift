@@ -3,8 +3,10 @@ import AppKit
 
 struct InteractiveVideoOverlay: NSViewRepresentable {
     var isFullscreen: Bool
+    var shouldOpenFilePickerOnClick: Bool
     var onMouseActivity: () -> Void
     var onToggleFullScreen: () -> Void
+    var onOpenFilePicker: () -> Void
     var onOpenURL: (URL) -> Void
     var onScrollUp: () -> Void
     var onScrollDown: () -> Void
@@ -12,8 +14,10 @@ struct InteractiveVideoOverlay: NSViewRepresentable {
     func makeNSView(context: Context) -> NSViewType {
         let view = NSViewType()
         view.isFullscreen = isFullscreen
+        view.shouldOpenFilePickerOnClick = shouldOpenFilePickerOnClick
         view.onMouseActivity = onMouseActivity
         view.onToggleFullScreen = onToggleFullScreen
+        view.onOpenFilePicker = onOpenFilePicker
         view.onOpenURL = onOpenURL
         view.onScrollUp = onScrollUp
         view.onScrollDown = onScrollDown
@@ -22,8 +26,10 @@ struct InteractiveVideoOverlay: NSViewRepresentable {
 
     func updateNSView(_ nsView: NSViewType, context: Context) {
         nsView.isFullscreen = isFullscreen
+        nsView.shouldOpenFilePickerOnClick = shouldOpenFilePickerOnClick
         nsView.onMouseActivity = onMouseActivity
         nsView.onToggleFullScreen = onToggleFullScreen
+        nsView.onOpenFilePicker = onOpenFilePicker
         nsView.onOpenURL = onOpenURL
         nsView.onScrollUp = onScrollUp
         nsView.onScrollDown = onScrollDown
@@ -31,8 +37,10 @@ struct InteractiveVideoOverlay: NSViewRepresentable {
 
     final class NSViewType: NSView {
         var isFullscreen: Bool = false
+        var shouldOpenFilePickerOnClick: Bool = false
         var onMouseActivity: (() -> Void)?
         var onToggleFullScreen: (() -> Void)?
+        var onOpenFilePicker: (() -> Void)?
         var onOpenURL: ((URL) -> Void)?
         var onScrollUp: (() -> Void)?
         var onScrollDown: (() -> Void)?
@@ -98,6 +106,9 @@ struct InteractiveVideoOverlay: NSViewRepresentable {
 
         override func mouseUp(with event: NSEvent) {
             onMouseActivity?()
+            if shouldOpenFilePickerOnClick, mouseDownEvent != nil, event.clickCount == 1 {
+                onOpenFilePicker?()
+            }
             mouseDownEvent = nil
             super.mouseUp(with: event)
         }
@@ -147,4 +158,3 @@ struct InteractiveVideoOverlay: NSViewRepresentable {
         }
     }
 }
-

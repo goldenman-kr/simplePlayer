@@ -53,18 +53,32 @@ struct PlayerView: View {
                             }
                         }
                     } else {
-                        Text("Drop a media file here (mp4, mov, mp3, m4a)")
-                            .foregroundColor(.white.opacity(0.7))
-                            .padding()
+                        Button(action: openFilePicker) {
+                            VStack(spacing: 10) {
+                                Text("Drop a media file here")
+                                    .font(.headline)
+                                Text("or click to browse (mp4, mov, mp3, m4a)")
+                                    .font(.subheadline)
+                                    .foregroundColor(.white.opacity(0.75))
+                            }
+                            .foregroundColor(.white.opacity(0.85))
+                            .padding(24)
+                            .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+                        }
+                        .buttonStyle(.plain)
                     }
 
                     InteractiveVideoOverlay(
                         isFullscreen: isFullscreen,
+                        shouldOpenFilePickerOnClick: viewModel.currentItem == nil,
                         onMouseActivity: {
                             handleUserInteraction()
                         },
                         onToggleFullScreen: {
                             toggleFullScreen()
+                        },
+                        onOpenFilePicker: {
+                            openFilePicker()
                         },
                         onOpenURL: { url in
                             DispatchQueue.main.async {
@@ -196,6 +210,10 @@ struct PlayerView: View {
         if let window = NSApp.keyWindow {
             window.toggleFullScreen(nil)
         }
+    }
+
+    private func openFilePicker() {
+        openFileCoordinator.presentOpenPanel()
     }
 
     private func setCursorHidden(_ hidden: Bool) {
