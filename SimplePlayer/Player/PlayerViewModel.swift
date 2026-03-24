@@ -6,13 +6,20 @@ import AppKit
 import IOKit.pwr_mgt
 
 final class PlayerViewModel: ObservableObject {
+    private let boostMultiplier: Float = 4.0
+
     @Published var currentItem: MediaItem?
     @Published var isPlaying: Bool = false
     @Published var currentTime: Double = 0
     @Published var duration: Double = 0
     @Published var volume: Float = 0.8 {
         didSet {
-            engine.volume = volume
+            applyVolume()
+        }
+    }
+    @Published var isVolumeBoostEnabled: Bool = false {
+        didSet {
+            applyVolume()
         }
     }
     @Published var playbackRate: Float = 1.0 {
@@ -35,7 +42,7 @@ final class PlayerViewModel: ObservableObject {
 
     init(engine: PlayerEngine = PlayerEngine()) {
         self.engine = engine
-        engine.volume = volume
+        applyVolume()
         engine.rate = playbackRate
 
         engine.addPeriodicTimeObserver { [weak self] time in
@@ -114,6 +121,7 @@ final class PlayerViewModel: ObservableObject {
         }
 
         engine.load(url: url)
+        applyVolume()
         currentItem = MediaItem(url: url)
         currentTime = 0
         duration = engine.duration
@@ -215,6 +223,10 @@ final class PlayerViewModel: ObservableObject {
         volume = max(0.0, volume - step)
     }
 
+    var displayedVolumePercentage: Int {
+        Int((effectiveVolumeMultiplier * 100).rounded())
+    }
+
     func scaleWindow(to factor: CGFloat) {
         guard hasVideo,
               !factor.isNaN,
@@ -273,6 +285,20 @@ final class PlayerViewModel: ObservableObject {
 
         shouldResizeWindowToVideo = false
         scaleWindow(to: 1.0)
+    }
+
+    private var effectiveVolumeMultiplier: Float {
+        isVolumeBoostEnabled ? volume * boostMultiplier : volume
+    }
+
+    private func applyVolume() {
+        if isVolumeBoostEnabled {
+            engine.volume = 1.0
+            engine.setAudioMixVolume(effectiveVolumeMultiplier)
+        } else {
+            engine.setAudioMixVolume(nil)
+            engine.volume = volume
+        }
     }
 
     private func updateSleepPreventionIfNeeded() {

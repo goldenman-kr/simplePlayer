@@ -72,6 +72,12 @@ struct ControlsView: View {
                     )
                     .frame(width: 120)
                     Image(systemName: "speaker.wave.3.fill")
+                    Toggle("Boost", isOn: $viewModel.isVolumeBoostEnabled)
+                        .toggleStyle(.checkbox)
+                        .fixedSize()
+                    Text("\(viewModel.displayedVolumePercentage)%")
+                        .font(.system(size: 12, design: .monospaced))
+                        .frame(width: 44, alignment: .trailing)
                 }
 
                 Divider()
@@ -109,4 +115,3 @@ struct ControlsView: View {
         }
     }
 }
-

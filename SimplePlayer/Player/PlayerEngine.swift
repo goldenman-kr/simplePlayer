@@ -1,5 +1,6 @@
 import Foundation
 import AVFoundation
+import CoreMedia
 
 final class PlayerEngine {
     let player: AVPlayer
@@ -60,6 +61,31 @@ final class PlayerEngine {
         set { player.volume = max(0, min(1, newValue)) }
     }
 
+    func setAudioMixVolume(_ volume: Float?) {
+        guard let item = player.currentItem else { return }
+
+        guard let volume else {
+            item.audioMix = nil
+            return
+        }
+
+        let audioTracks = item.asset.tracks(withMediaType: .audio)
+        guard !audioTracks.isEmpty else {
+            item.audioMix = nil
+            return
+        }
+
+        let parameters = audioTracks.map { track -> AVAudioMixInputParameters in
+            let inputParameters = AVMutableAudioMixInputParameters(track: track)
+            inputParameters.setVolume(max(0, volume), at: .zero)
+            return inputParameters
+        }
+
+        let audioMix = AVMutableAudioMix()
+        audioMix.inputParameters = parameters
+        item.audioMix = audioMix
+    }
+
     var rate: Float {
         get { player.rate }
         set { player.rate = newValue }
@@ -85,4 +111,3 @@ final class PlayerEngine {
         }
     }
 }
-
