@@ -25,23 +25,38 @@ final class SimplePlayerAppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
-@main
-struct SimplePlayerApp: App {
-    @NSApplicationDelegateAdaptor(SimplePlayerAppDelegate.self) private var appDelegate
+private struct MainWindowContentView: View {
     @StateObject private var playerViewModel = PlayerViewModel()
     @StateObject private var openFileCoordinator = AppOpenFileCoordinator.shared
 
+    var body: some View {
+        PlayerView(viewModel: playerViewModel, openFileCoordinator: openFileCoordinator)
+    }
+}
+
+private struct SimplePlayerAppCommands: Commands {
+    private let openFileCoordinator = AppOpenFileCoordinator.shared
+
+    var body: some Commands {
+        CommandGroup(after: .newItem) {
+            Button("Open...") {
+                openFileCoordinator.presentOpenPanel()
+            }
+            .keyboardShortcut("o", modifiers: .command)
+        }
+    }
+}
+
+@main
+struct SimplePlayerApp: App {
+    @NSApplicationDelegateAdaptor(SimplePlayerAppDelegate.self) private var appDelegate
+
     var body: some Scene {
         WindowGroup {
-            PlayerView(viewModel: playerViewModel, openFileCoordinator: openFileCoordinator)
+            MainWindowContentView()
         }
         .commands {
-            CommandGroup(after: .newItem) {
-                Button("Open...") {
-                    openFileCoordinator.presentOpenPanel()
-                }
-                .keyboardShortcut("o", modifiers: .command)
-            }
+            SimplePlayerAppCommands()
         }
     }
 }
