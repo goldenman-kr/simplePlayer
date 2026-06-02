@@ -13,21 +13,14 @@ final class AppOpenFileCoordinator: ObservableObject {
 
     @Published var lastRequest: OpenFileRequest?
 
-    let supportedExtensions: Set<String> = ["mp4", "mov", "mp3", "m4a"]
-    let supportedContentTypes: [UTType] = {
-        var types: [UTType] = [.mpeg4Movie, .quickTimeMovie, .mp3]
-        if let m4aType = UTType(filenameExtension: "m4a") {
-            types.append(m4aType)
-        }
-        return types
-    }()
+    let supportedExtensions: Set<String> = SupportedMedia.playableExtensionSet
+    let supportedContentTypes: [UTType] = SupportedMedia.openPanelContentTypes
     private var nextID: Int = 1
 
     private init() {}
 
     func handleIncoming(url: URL) {
-        let ext = url.pathExtension.lowercased()
-        guard supportedExtensions.contains(ext) else {
+        guard SupportedMedia.isPlayable(url) else {
             print("SimplePlayer: Ignoring unsupported file type: \(url.path)")
             return
         }

@@ -28,8 +28,19 @@ struct PlayerView: View {
                     if let item = viewModel.currentItem {
                         switch item.mediaType {
                         case .video:
-                            MacVideoPlayerView(player: viewModel.player)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            switch viewModel.playbackBackend {
+                            case .avPlayer:
+                                MacVideoPlayerView(player: viewModel.player)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            case .vlc:
+                                VLCVideoPlayerView(player: viewModel.vlcMediaPlayer)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            }
+                            SubtitleOverlayView(
+                                text: viewModel.currentSubtitleText,
+                                fontScale: viewModel.subtitleFontScale,
+                                isFullscreen: isFullscreen
+                            )
                         case .audio:
                             if let artwork = viewModel.artworkImage {
                                 Image(nsImage: artwork)
@@ -57,7 +68,7 @@ struct PlayerView: View {
                             VStack(spacing: 10) {
                                 Text("Drop a media file here")
                                     .font(.headline)
-                                Text("or click to browse (mp4, mov, mp3, m4a)")
+                                Text("or click to browse (\(SupportedMedia.displayedPlayableExtensions))")
                                     .font(.subheadline)
                                     .foregroundColor(.white.opacity(0.75))
                             }
@@ -93,6 +104,29 @@ struct PlayerView: View {
                         }
                     )
                     .allowsHitTesting(true)
+
+                    if let error = viewModel.playbackErrorMessage {
+                        VStack(spacing: 10) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.title2)
+                            Text(error)
+                                .font(.callout)
+                                .multilineTextAlignment(.center)
+                            if let appName = viewModel.externalPlaybackAppName {
+                                Button {
+                                    viewModel.openInExternalPlaybackApp()
+                                } label: {
+                                    Label("Open in \(appName)", systemImage: "play.rectangle")
+                                }
+                                .buttonStyle(.borderedProminent)
+                            }
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 14)
+                        .background(.black.opacity(0.72), in: RoundedRectangle(cornerRadius: 8))
+                        .padding()
+                    }
                 }
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)

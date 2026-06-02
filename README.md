@@ -8,6 +8,29 @@ Current features:
 
 - Drag and drop playback for local media files
 - Video playback with aspect-ratio-safe rendering
+- MKV playback through VLCKit
+- SRT and SMI subtitle overlay support
 - Full-screen playback and basic transport controls
 - Audio playback with embedded artwork when available
 - Simple window scaling shortcuts for video content
+
+## Development Setup
+
+SimplePlayer uses CocoaPods for VLCKit. After cloning the repository, install
+the pods before opening or building the app:
+
+```sh
+pod install
+```
+
+Open the generated workspace, not the project file:
+
+```sh
+open SimplePlayer.xcworkspace
+```
+
+Command-line release build:
+
+```sh
+xcodebuild -workspace SimplePlayer.xcworkspace -scheme SimplePlayer -configuration Release build
+```
