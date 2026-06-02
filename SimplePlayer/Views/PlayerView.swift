@@ -11,6 +11,7 @@ struct PlayerView: View {
     @State private var showControls: Bool = true
     @State private var hideControlsWorkItem: DispatchWorkItem?
     @State private var isCursorHidden: Bool = false
+    @State private var fullscreenControlsHeight: CGFloat = 0
 
     private let dropTypes: [UTType] = [
         .fileURL,
@@ -39,7 +40,8 @@ struct PlayerView: View {
                             SubtitleOverlayView(
                                 text: viewModel.currentSubtitleText,
                                 fontScale: viewModel.subtitleFontScale,
-                                isFullscreen: isFullscreen
+                                isFullscreen: isFullscreen,
+                                controlsHeight: isFullscreen && showControls ? fullscreenControlsHeight : 0
                             )
                         case .audio:
                             if let artwork = viewModel.artworkImage {
@@ -150,6 +152,11 @@ struct PlayerView: View {
                     ControlsView(viewModel: viewModel, isFullscreen: isFullscreen)
                         .padding()
                         .background(Material.regular)
+                        .background(
+                            GeometryReader { proxy in
+                                Color.clear.preference(key: ControlsHeightPreferenceKey.self, value: proxy.size.height)
+                            }
+                        )
                         .onHover { _ in
                             handleUserInteraction()
                         }
@@ -213,6 +220,9 @@ struct PlayerView: View {
                 setCursorHidden(false)
             }
         }
+        .onPreferenceChange(ControlsHeightPreferenceKey.self) { height in
+            fullscreenControlsHeight = height
+        }
     }
 
     private func handleUserInteraction() {
@@ -260,5 +270,13 @@ struct PlayerView: View {
         }
 
         isCursorHidden = hidden
+    }
+}
+
+private struct ControlsHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
