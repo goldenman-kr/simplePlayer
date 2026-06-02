@@ -533,6 +533,11 @@ final class PlayerViewModel: ObservableObject {
         subtitleDelay = ((subtitleDelay + delta) * 10).rounded() / 10
     }
 
+    func adjustSubtitleFontScale(by delta: Double) {
+        let adjusted = ((subtitleFontScale + delta) * 10).rounded() / 10
+        subtitleFontScale = min(1.6, max(0.8, adjusted))
+    }
+
     func loadSubtitle(url: URL) {
         guard SupportedMedia.isSubtitle(url) else {
             subtitleStatusMessage = "Unsupported subtitle file: .\(url.pathExtension.lowercased())"

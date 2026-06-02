@@ -3,6 +3,7 @@ import SwiftUI
 struct ControlsView: View {
     @ObservedObject var viewModel: PlayerViewModel
     let isFullscreen: Bool
+    @State private var isSubtitleSettingsPresented = false
 
     private let playbackRates: [Float] = [0.75, 1.0, 1.25, 1.5, 2.0]
     private let windowScales: [(label: String, value: CGFloat)] = [
@@ -72,7 +73,7 @@ struct ControlsView: View {
             Divider()
                 .frame(height: 22)
 
-            subtitleMenu
+            subtitleSettingsButton
 
             Divider()
                 .frame(height: 22)
@@ -92,7 +93,7 @@ struct ControlsView: View {
 
             HStack(spacing: 10) {
                 speedMenu
-                subtitleMenu
+                subtitleSettingsButton
                 windowScaleMenu
             }
         }
@@ -209,10 +210,23 @@ struct ControlsView: View {
         .disabled(!viewModel.hasLoadedItem)
     }
 
-    private var subtitleMenu: some View {
-        Menu {
+    private var subtitleSettingsButton: some View {
+        Button {
+            isSubtitleSettingsPresented.toggle()
+        } label: {
+            Label(subtitleLabel, systemImage: viewModel.subtitleTrack == nil ? "captions.bubble" : "captions.bubble.fill")
+        }
+        .help("Subtitles")
+        .popover(isPresented: $isSubtitleSettingsPresented, arrowEdge: .bottom) {
+            subtitleSettingsPopover
+        }
+    }
+
+    private var subtitleSettingsPopover: some View {
+        VStack(alignment: .leading, spacing: 12) {
             Button {
                 viewModel.presentSubtitleOpenPanel()
+                isSubtitleSettingsPresented = false
             } label: {
                 Label("Open Subtitle...", systemImage: "folder")
             }
@@ -223,39 +237,79 @@ struct ControlsView: View {
 
             Divider()
 
-            Button {
-                viewModel.adjustSubtitleDelay(by: -0.5)
-            } label: {
-                Label("-0.5s Delay", systemImage: "minus.circle")
-            }
-            .disabled(viewModel.subtitleTrack == nil)
+            VStack(alignment: .leading, spacing: 8) {
+                Text(String(format: "Delay %.1fs", viewModel.subtitleDelay))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
 
-            Button {
-                viewModel.adjustSubtitleDelay(by: 0.5)
-            } label: {
-                Label("+0.5s Delay", systemImage: "plus.circle")
-            }
-            .disabled(viewModel.subtitleTrack == nil)
+                HStack(spacing: 8) {
+                    Button {
+                        viewModel.adjustSubtitleDelay(by: -0.5)
+                    } label: {
+                        Label("-0.5s", systemImage: "minus.circle")
+                    }
+                    .disabled(viewModel.subtitleTrack == nil)
 
-            Text(String(format: "Delay %.1fs", viewModel.subtitleDelay))
+                    Button {
+                        viewModel.adjustSubtitleDelay(by: 0.5)
+                    } label: {
+                        Label("+0.5s", systemImage: "plus.circle")
+                    }
+                    .disabled(viewModel.subtitleTrack == nil)
+                }
+            }
 
             Divider()
 
-            Slider(value: $viewModel.subtitleFontScale, in: 0.8...1.6) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text("Subtitle Size")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                HStack(spacing: 8) {
+                    Button {
+                        viewModel.adjustSubtitleFontScale(by: -0.1)
+                    } label: {
+                        Image(systemName: "minus")
+                            .frame(width: 16, height: 16)
+                    }
+                    .disabled(viewModel.subtitleTrack == nil || viewModel.subtitleFontScale <= 0.8)
+
+                    Text("\(Int((viewModel.subtitleFontScale * 100).rounded()))%")
+                        .font(.system(size: 12, design: .monospaced))
+                        .frame(width: 52)
+
+                    Button {
+                        viewModel.adjustSubtitleFontScale(by: 0.1)
+                    } label: {
+                        Image(systemName: "plus")
+                            .frame(width: 16, height: 16)
+                    }
+                    .disabled(viewModel.subtitleTrack == nil || viewModel.subtitleFontScale >= 1.6)
+
+                    Slider(
+                        value: Binding(
+                            get: { viewModel.subtitleFontScale },
+                            set: { viewModel.subtitleFontScale = min(1.6, max(0.8, $0)) }
+                        ),
+                        in: 0.8...1.6
+                    )
+                    .disabled(viewModel.subtitleTrack == nil)
+                }
             }
-            .disabled(viewModel.subtitleTrack == nil)
+
+            Divider()
 
             Button(role: .destructive) {
                 viewModel.clearSubtitle()
+                isSubtitleSettingsPresented = false
             } label: {
                 Label("Clear Subtitle", systemImage: "xmark.circle")
             }
             .disabled(viewModel.subtitleTrack == nil)
-        } label: {
-            Label(subtitleLabel, systemImage: viewModel.subtitleTrack == nil ? "captions.bubble" : "captions.bubble.fill")
         }
-        .help("Subtitles")
+        .padding(14)
+        .frame(width: 300)
     }
 
     private var subtitleLabel: String {
