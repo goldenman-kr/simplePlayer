@@ -14,15 +14,13 @@ struct MediaItem: Identifiable, Equatable {
     }
 
     var mediaType: MediaType {
-        let ext = url.pathExtension.lowercased()
-        switch ext {
-        case "mp4", "mov":
+        switch SupportedMedia.kind(for: url) {
+        case .video:
             return .video
-        case "mp3", "m4a":
+        case .audio:
             return .audio
-        default:
+        case .subtitle, .none:
             return .video
         }
     }
 }
-

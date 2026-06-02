@@ -16,9 +16,11 @@ final class PlayerEngine {
         }
     }
 
-    func load(url: URL) {
+    @discardableResult
+    func load(url: URL) -> AVPlayerItem {
         let item = AVPlayerItem(url: url)
         player.replaceCurrentItem(with: item)
+        return item
     }
 
     func play() {

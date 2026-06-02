@@ -6,8 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5CB07514175551E0CC42F22A /* Pods_SimplePlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCDD3101F21A1D3EDC58C785 /* Pods_SimplePlayer.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		64E4E6762F62DFFE0009D188 /* SimplePlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimplePlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		85D497CFC9CB4DFF31FD76C3 /* Pods-SimplePlayer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimplePlayer.debug.xcconfig"; path = "Target Support Files/Pods-SimplePlayer/Pods-SimplePlayer.debug.xcconfig"; sourceTree = "<group>"; };
+		B18E0D859D5CE28F418365A5 /* Pods-SimplePlayer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimplePlayer.release.xcconfig"; path = "Target Support Files/Pods-SimplePlayer/Pods-SimplePlayer.release.xcconfig"; sourceTree = "<group>"; };
+		BCDD3101F21A1D3EDC58C785 /* Pods_SimplePlayer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimplePlayer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -36,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5CB07514175551E0CC42F22A /* Pods_SimplePlayer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -47,6 +55,8 @@
 			children = (
 				64E4E6782F62DFFE0009D188 /* SimplePlayer */,
 				64E4E6772F62DFFE0009D188 /* Products */,
+				E5635A4AA568468D2AEAB4A5 /* Pods */,
+				DA4EB5B71DFCA0E4C5B9631E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,6 +68,24 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		DA4EB5B71DFCA0E4C5B9631E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BCDD3101F21A1D3EDC58C785 /* Pods_SimplePlayer.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E5635A4AA568468D2AEAB4A5 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				85D497CFC9CB4DFF31FD76C3 /* Pods-SimplePlayer.debug.xcconfig */,
+				B18E0D859D5CE28F418365A5 /* Pods-SimplePlayer.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -65,9 +93,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 64E4E6812F62DFFF0009D188 /* Build configuration list for PBXNativeTarget "SimplePlayer" */;
 			buildPhases = (
+				AA5C552E62FC0EC840F4B6EE /* [CP] Check Pods Manifest.lock */,
 				64E4E6722F62DFFE0009D188 /* Sources */,
 				64E4E6732F62DFFE0009D188 /* Frameworks */,
 				64E4E6742F62DFFE0009D188 /* Resources */,
+				EE7C630B9BDE25CB2662B0D4 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -77,8 +107,6 @@
 				64E4E6782F62DFFE0009D188 /* SimplePlayer */,
 			);
 			name = SimplePlayer;
-			packageProductDependencies = (
-			);
 			productName = SimplePlayer;
 			productReference = 64E4E6762F62DFFE0009D188 /* SimplePlayer.app */;
 			productType = "com.apple.product-type.application";
@@ -126,6 +154,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		AA5C552E62FC0EC840F4B6EE /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SimplePlayer-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EE7C630B9BDE25CB2662B0D4 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SimplePlayer/Pods-SimplePlayer-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SimplePlayer/Pods-SimplePlayer-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SimplePlayer/Pods-SimplePlayer-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		64E4E6722F62DFFE0009D188 /* Sources */ = {
@@ -176,7 +246,7 @@
 				DEVELOPMENT_TEAM = 5UHJ5L76K4;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -240,7 +310,7 @@
 				DEVELOPMENT_TEAM = 5UHJ5L76K4;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -260,6 +330,7 @@
 		};
 		64E4E6822F62DFFF0009D188 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 85D497CFC9CB4DFF31FD76C3 /* Pods-SimplePlayer.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -293,6 +364,7 @@
 		};
 		64E4E6832F62DFFF0009D188 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B18E0D859D5CE28F418365A5 /* Pods-SimplePlayer.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
