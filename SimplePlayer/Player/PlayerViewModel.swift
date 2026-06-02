@@ -422,12 +422,57 @@ final class PlayerViewModel: ObservableObject {
             duration = Double(length) / 1000.0
         }
 
+        updateVLCVideoSizeIfNeeded()
         isPlaying = vlcPlayer.isPlaying
         if vlcPlayer.state == .error {
             playbackErrorMessage = "This MKV file could not be played by the VLC backend."
         }
         updateSleepPreventionIfNeeded()
         refreshSubtitleText()
+    }
+
+    private func updateVLCVideoSizeIfNeeded() {
+        let playerSize = vlcPlayer.videoSize
+        if playerSize.width > 0, playerSize.height > 0 {
+            setVideoSizeIfNeeded(playerSize)
+            return
+        }
+
+        guard let tracks = vlcPlayer.media?.tracksInformation as? [[String: Any]] else {
+            return
+        }
+
+        for track in tracks where track[VLCMediaTracksInformationType] as? String == VLCMediaTracksInformationTypeVideo {
+            if let width = numberValue(track[VLCMediaTracksInformationVideoWidth]),
+               let height = numberValue(track[VLCMediaTracksInformationVideoHeight]),
+               width > 0,
+               height > 0 {
+                setVideoSizeIfNeeded(CGSize(width: width, height: height))
+                return
+            }
+        }
+    }
+
+    private func numberValue(_ value: Any?) -> CGFloat? {
+        if let number = value as? NSNumber {
+            return CGFloat(truncating: number)
+        }
+        if let value = value as? CGFloat {
+            return value
+        }
+        if let value = value as? Double {
+            return CGFloat(value)
+        }
+        if let value = value as? Int {
+            return CGFloat(value)
+        }
+        return nil
+    }
+
+    private func setVideoSizeIfNeeded(_ size: CGSize) {
+        guard size != .zero, size != videoSize else { return }
+        videoSize = size
+        resizeWindowToVideoIfNeeded()
     }
 
     func presentSubtitleOpenPanel() {
