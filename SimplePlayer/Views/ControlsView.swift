@@ -3,6 +3,7 @@ import SwiftUI
 struct ControlsView: View {
     @ObservedObject var viewModel: PlayerViewModel
     let isFullscreen: Bool
+    var onSubtitleSettingsPresentedChange: ((Bool) -> Void)? = nil
     @State private var isSubtitleSettingsPresented = false
 
     private let playbackRates: [Float] = [0.75, 1.0, 1.25, 1.5, 2.0]
@@ -220,6 +221,9 @@ struct ControlsView: View {
         .popover(isPresented: $isSubtitleSettingsPresented, arrowEdge: .bottom) {
             subtitleSettingsPopover
         }
+        .onChange(of: isSubtitleSettingsPresented) { isPresented in
+            onSubtitleSettingsPresentedChange?(isPresented)
+        }
     }
 
     private var subtitleSettingsPopover: some View {
@@ -310,6 +314,11 @@ struct ControlsView: View {
         }
         .padding(14)
         .frame(width: 300)
+        .onHover { isHovering in
+            if isHovering {
+                onSubtitleSettingsPresentedChange?(true)
+            }
+        }
     }
 
     private var subtitleLabel: String {

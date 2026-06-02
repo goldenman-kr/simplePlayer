@@ -12,6 +12,7 @@ struct PlayerView: View {
     @State private var hideControlsWorkItem: DispatchWorkItem?
     @State private var isCursorHidden: Bool = false
     @State private var fullscreenControlsHeight: CGFloat = 0
+    @State private var isFullscreenControlsPinned: Bool = false
 
     private let dropTypes: [UTType] = [
         .fileURL,
@@ -149,7 +150,11 @@ struct PlayerView: View {
             if isFullscreen && showControls {
                 VStack {
                     Spacer()
-                    ControlsView(viewModel: viewModel, isFullscreen: isFullscreen)
+                    ControlsView(
+                        viewModel: viewModel,
+                        isFullscreen: isFullscreen,
+                        onSubtitleSettingsPresentedChange: handleSubtitleSettingsPresentationChange
+                    )
                         .padding()
                         .background(Material.regular)
                         .background(
@@ -213,9 +218,11 @@ struct PlayerView: View {
         .onChange(of: isFullscreen) { newValue in
             hideControlsWorkItem?.cancel()
             if newValue {
+                isFullscreenControlsPinned = false
                 showControls = false
                 setCursorHidden(true)
             } else {
+                isFullscreenControlsPinned = false
                 showControls = true
                 setCursorHidden(false)
             }
@@ -238,8 +245,10 @@ struct PlayerView: View {
         setCursorHidden(false)
 
         hideControlsWorkItem?.cancel()
+        guard !isFullscreenControlsPinned else { return }
 
         let workItem = DispatchWorkItem {
+            guard !isFullscreenControlsPinned else { return }
             withAnimation {
                 showControls = false
             }
@@ -248,6 +257,22 @@ struct PlayerView: View {
 
         hideControlsWorkItem = workItem
         DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: workItem)
+    }
+
+    private func handleSubtitleSettingsPresentationChange(_ isPresented: Bool) {
+        guard isFullscreen else { return }
+
+        isFullscreenControlsPinned = isPresented
+        hideControlsWorkItem?.cancel()
+
+        if isPresented {
+            withAnimation {
+                showControls = true
+            }
+            setCursorHidden(false)
+        } else {
+            handleUserInteraction()
+        }
     }
 
     private func toggleFullScreen() {
